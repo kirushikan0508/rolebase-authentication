@@ -1,18 +1,21 @@
 const express = require("express");
-
+const verifyToken = require("../middlewares/authMiddleware.js");
+const authorizedRoles = require("../middlewares/roleMiddleware.js")
 const router = express.Router();
 
-//only admin can access this router
-router.get("/admin", (req,res) =>{
-    res.json({ message:"welcome admin"});
-});
-//both admin and manager can access this router
-router.get("/manager", (req,res) =>{
-    res.json({ message:"welcome admin"});
-});
-//all can access this router
-router.get("/user", (req,res) =>{
-    res.json({ message:"welcome admin"});
+// Only admin can access
+router.get("/admin", verifyToken, authorizedRoles("admin"), (req, res) => {
+    res.json({ message: "Welcome Admin" });
 });
 
-module.exports =router;
+// Admin and manager can access
+router.get("/manager", verifyToken, authorizedRoles("admin", "manager"), (req, res) => {
+    res.json({ message: "Welcome Manager/Admin" });
+});
+
+// All roles can access
+router.get("/user", verifyToken, authorizedRoles("admin", "manager", "user"), (req, res) => {
+    res.json({ message: "Welcome User" });
+});
+
+module.exports = router;
